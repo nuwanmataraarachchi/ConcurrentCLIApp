@@ -1,47 +1,37 @@
 package ticketbookingsys;
-
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class SynchronizedTicketPool implements TicketPool {
-    private final Queue<Ticket> ticketQueue;
+    private final Queue<String> tickets;
     private final int capacity;
 
     public SynchronizedTicketPool(int capacity) {
         this.capacity = capacity;
-        this.ticketQueue = new LinkedList<>();
+        this.tickets = new LinkedList<>();
     }
 
     @Override
-    public synchronized void addTicket(Ticket ticket) {
-        if (ticketQueue.size() < capacity) {
-            ticketQueue.add(ticket);
+    public synchronized void addTicket(String ticket) {
+        if (tickets.size() < capacity) {
+            tickets.add(ticket);
             System.out.println("Ticket added: " + ticket);
         } else {
-            System.out.println("Ticket pool is full!");
+            System.out.println("Ticket pool is full.");
         }
     }
 
     @Override
-    public synchronized Ticket purchaseTicket() {
-        if (ticketQueue.isEmpty()) {
-            System.out.println("No tickets available!");
-            return null;
+    public synchronized String getTicket() {
+        if (!tickets.isEmpty()) {
+            String ticket = tickets.poll();
+            return ticket;
         }
-        Ticket ticket = ticketQueue.poll();
-        System.out.println("Ticket purchased: " + ticket);
-        return ticket;
+        return null;
     }
 
     @Override
-    public synchronized int getTicketCount() {
-        return ticketQueue.size();
-    }
-
-
-
-    @Override
-    public synchronized void printStatus() {
-        System.out.println("Tickets in pool: " + ticketQueue.size());
+    public void printStatus() {
+        System.out.println("Ticket Pool Status: " + tickets.size() + "/" + capacity + " tickets in the pool.");
     }
 }

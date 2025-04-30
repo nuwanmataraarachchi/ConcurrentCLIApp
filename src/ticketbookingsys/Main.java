@@ -1,39 +1,20 @@
 package ticketbookingsys;
 
 public class Main {
-    public static void main(String[] args) throws InterruptedException {
-        SynchronizedTicketPool pool = new SynchronizedTicketPool(5);
+    public static void main(String[] args) {
+        TicketPool ticketPool = new ReentrantLockTicketPool(5); // Set a pool size
 
-        // Create and start threads for adding and purchasing tickets
-        Thread producer = new Thread(() -> {
-            try {
-                for (int i = 0; i < 10; i++) {
-                    Ticket ticket = new Ticket("Producer1");
-                    pool.addTicket(ticket); // ✅ Ticket passed here
-                    System.out.println("Produced: " + ticket);
-                    Thread.sleep(500); // Simulate time between ticket additions
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
+        // Create and start Writer threads (Producers)
+        Thread writer1 = new Thread(new Writer(ticketPool, "Writer 1"));
+        Thread writer2 = new Thread(new Writer(ticketPool, "Writer 2"));
 
-        Thread consumer = new Thread(() -> {
-            try {
-                for (int i = 0; i < 10; i++) {
-                    Ticket ticket = pool.purchaseTicket(); // ✅ Returns a Ticket
-                    System.out.println("Consumed: " + ticket);
-                    Thread.sleep(1000); // Simulate time between ticket purchases
-                }
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        });
+        // Create and start Reader threads (Consumers)
+        Thread reader1 = new Thread(new Reader(ticketPool, "Reader 1"));
+        Thread reader2 = new Thread(new Reader(ticketPool, "Reader 2"));
 
-        producer.start();
-        consumer.start();
-
-        producer.join();
-        consumer.join();
+        writer1.start();
+        writer2.start();
+        reader1.start();
+        reader2.start();
     }
 }

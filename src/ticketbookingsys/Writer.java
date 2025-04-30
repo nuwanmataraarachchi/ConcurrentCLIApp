@@ -1,5 +1,4 @@
 package ticketbookingsys;
-
 public class Writer implements Runnable {
     private final TicketPool ticketPool;
     private final String name;
@@ -11,14 +10,15 @@ public class Writer implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            Ticket ticket = new Ticket(name); // Each ticket has a writer name
-            ticketPool.addTicket(ticket);
-            try {
-                Thread.sleep(500); // Simulate delay between adding tickets
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+        try {
+            while (true) {
+                String ticket = "Ticket " + System.nanoTime();
+                ticketPool.addTicket(ticket);
+                System.out.println(name + " produced: " + ticket);
+                Thread.sleep(1000);  // Simulate work
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }

@@ -1,68 +1,54 @@
 package ticketbookingsys;
-
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ReentrantLockTicketPool implements TicketPool {
-    private final Queue<Ticket> ticketQueue;
+    private final Queue<String> tickets;
     private final int capacity;
-    private final ReentrantLock lock;
+    private final ReentrantReadWriteLock lock;
 
     public ReentrantLockTicketPool(int capacity) {
         this.capacity = capacity;
-        this.ticketQueue = new LinkedList<>();
-        this.lock = new ReentrantLock();
+        this.tickets = new LinkedList<>();
+        this.lock = new ReentrantReadWriteLock();
     }
 
     @Override
-    public void addTicket(Ticket ticket) {
-        lock.lock();
+    public void addTicket(String ticket) {
+        lock.writeLock().lock();
         try {
-            if (ticketQueue.size() < capacity) {
-                ticketQueue.add(ticket);
+            if (tickets.size() < capacity) {
+                tickets.add(ticket);
                 System.out.println("Ticket added: " + ticket);
             } else {
-                System.out.println("Ticket pool is full!");
+                System.out.println("Ticket pool is full.");
             }
         } finally {
-            lock.unlock();
+            lock.writeLock().unlock();
         }
     }
 
     @Override
-    public Ticket purchaseTicket() {
-        lock.lock();
+    public String getTicket() {
+        lock.readLock().lock();
         try {
-            if (ticketQueue.isEmpty()) {
-                System.out.println("No tickets available!");
-                return null;
+            if (!tickets.isEmpty()) {
+                return tickets.poll();
             }
-            Ticket ticket = ticketQueue.poll();
-            System.out.println("Ticket purchased: " + ticket);
-            return ticket;
+            return null;
         } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public int getTicketCount() {
-        lock.lock();
-        try {
-            return ticketQueue.size();
-        } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void printStatus() {
-        lock.lock();
+        lock.readLock().lock();
         try {
-            System.out.println("Tickets in pool: " + ticketQueue.size());
+            System.out.println("Ticket Pool Status: " + tickets.size() + "/" + capacity + " tickets in the pool.");
         } finally {
-            lock.unlock();
+            lock.readLock().unlock();
         }
     }
 }

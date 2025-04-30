@@ -1,17 +1,24 @@
 package ticketbookingsys;
 
 public class Ticket {
-    private static int counter = 0;
     private final int id;
     private final String producerName;
 
-    public Ticket(String producerName) {
-        this.id = ++counter;
+    public Ticket(int id, String producerName) {
+        this.id = id;
         this.producerName = producerName;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getProducerName() {
+        return producerName;
     }
 
     @Override
     public String toString() {
-        return "Ticket{id=" + id + ", producer='" + producerName + "'}";
+        return "Ticket{id=" + id + ", producerName='" + producerName + "'}";
     }
 }

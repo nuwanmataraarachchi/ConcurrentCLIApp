@@ -11,14 +11,15 @@ public class Producer implements Runnable {
 
     @Override
     public void run() {
-        while (true) {
-            Ticket ticket = new Ticket(name); // Each ticket has a producer name
-            ticketPool.addTicket(ticket);
-            try {
-                Thread.sleep(500); // Simulate delay between adding tickets
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+        try {
+            while (true) {
+                String ticket = "Ticket " + System.nanoTime();
+                ticketPool.addTicket(ticket);  // Producer writes (adds ticket)
+                System.out.println(name + " produced: " + ticket);
+                Thread.sleep(1000); // Simulate work
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 }

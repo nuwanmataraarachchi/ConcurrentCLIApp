@@ -1,47 +1,36 @@
 package ticketbookingsys;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class BlockingQueueTicketPool implements TicketPool {
-    private final BlockingQueue<Ticket> ticketQueue;
+    private final BlockingQueue<String> tickets;
 
     public BlockingQueueTicketPool(int capacity) {
-        this.ticketQueue = new ArrayBlockingQueue<>(capacity);
+        tickets = new ArrayBlockingQueue<>(capacity);
     }
 
     @Override
-    public void addTicket(Ticket ticket) {
+    public void addTicket(String ticket) {
         try {
-            if (!ticketQueue.offer(ticket)) {
-                System.out.println("Ticket pool is full!");
-            } else {
-                System.out.println("Ticket added: " + ticket);
-            }
-        } catch (Exception e) {
-            System.out.println("Error adding ticket: " + e.getMessage());
+            tickets.put(ticket);
+            System.out.println("Ticket added: " + ticket);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
     @Override
-    public Ticket purchaseTicket() {
+    public String getTicket() {
         try {
-            Ticket ticket = ticketQueue.take(); // Blocks if no ticket is available
-            System.out.println("Ticket purchased: " + ticket);
-            return ticket;
+            return tickets.take();
         } catch (InterruptedException e) {
-            System.out.println("Error purchasing ticket: " + e.getMessage());
+            Thread.currentThread().interrupt();
             return null;
         }
     }
 
     @Override
-    public int getTicketCount() {
-        return ticketQueue.size();
-    }
-
-    @Override
     public void printStatus() {
-        System.out.println("Tickets in pool: " + ticketQueue.size());
+        System.out.println("Ticket Pool Status: " + tickets.size() + "/" + tickets.remainingCapacity() + " tickets in the pool.");
     }
 }
